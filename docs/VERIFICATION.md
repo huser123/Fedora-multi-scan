@@ -91,6 +91,28 @@ with actual simulated images, including a five-page group followed by two
 pages in the next group at 600 dpi. Reproduce with
 `QT_QPA_PLATFORM=offscreen .venv/bin/python tools/capture-screenshots.py`.
 
+## Languages (1.1.0)
+
+Checked with the test suite (70 tests on Fedora 45, Python 3.15, PySide6 6.11)
+and by reading screenshots of both languages:
+
+- Every string passed to `tr()` has a Hungarian entry, no entry is unused, and
+  placeholders and keyboard mnemonics match between the two languages.
+- English is the default; the selection is stored and used on the next start;
+  `--lang` overrides it for one run.
+- Switching on the settings screen keeps the entered values (device, colour
+  mode, custom size, orientation, resolution, format, naming, group size,
+  folders, output folder) and is refused while a session is open.
+- A Hungarian demo session runs end to end, with both the English and the
+  Hungarian letter keys.
+- Number formats follow the language (210.0 mm / 210,0 mm), and the standard
+  dialog buttons are Hungarian when Qt's `qtbase_hu` catalogue is available.
+
+Not checked: the language switch in the packaged 1.1.0 AppImage. The 1.0.1
+package already ships Qt's `qtbase_hu.qm`; if a build lacked it, only the
+OK/Cancel/Yes/No buttons would stay English. The English texts have not been
+reviewed by a second reader.
+
 ## Portable build checks
 
 - AppImage and portable tar.gz built successfully with PyInstaller 6.22.3 and

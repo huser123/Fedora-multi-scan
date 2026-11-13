@@ -10,6 +10,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from .i18n import tr
 from .model import Settings
 
 
@@ -31,7 +32,7 @@ def host_environment():
 def scanimage_path():
     path = shutil.which("scanimage")
     if not path:
-        raise RuntimeError("Hiányzik a scanimage. A használati gépen telepítsd: sudo dnf install sane-backends sane-airscan hplip hplip-libs")
+        raise RuntimeError(tr("scanimage is missing. Install it on this machine: sudo dnf install sane-backends sane-airscan hplip hplip-libs"))
     return path
 
 
@@ -53,12 +54,12 @@ def run_command(args, *, cancel=None, output=None, timeout=45):
                         process.communicate()
                     if cancel and cancel.is_set():
                         raise ScanCancelled()
-                    raise RuntimeError("A scanner nem válaszolt a megadott időn belül. Ellenőrizd a kapcsolatot, majd próbáld újra.")
+                    raise RuntimeError(tr("The scanner did not respond in time. Check the connection, then try again."))
         if cancel and cancel.is_set():
             raise ScanCancelled()
         error = stderr.decode("utf-8", errors="replace")
         if process.returncode:
-            raise RuntimeError(f"A scanner hibát jelzett ({process.returncode}):\n{error[-6000:]}\n\nHP eszköznél ellenőrizd a HPLIP-et és szükség esetén a hp-plugin telepítését.")
+            raise RuntimeError(tr("The scanner reported an error ({code}):\n{error}\n\nFor an HP device, check HPLIP and, if needed, that hp-plugin is installed.", code=process.returncode, error=error[-6000:]))
         return (stdout or b"").decode("utf-8", errors="replace"), error
 
 
@@ -103,10 +104,11 @@ def scan(settings: Settings, target: Path, cancel: threading.Event, page_number=
             margin = round(60 * scale)
             draw.rectangle((margin, margin, width-margin, height-margin), outline="#53645b", width=max(1, round(2*scale)))
             draw.multiline_text((margin*1.4, margin*1.5),
-                                f"HP Scan\nPROBAUZEM\n\n{page_number}. beolvasas\n{settings.width:g} x {settings.height:g} mm\n{settings.dpi} dpi\n\nEz szimulalt tesztlap.",
+                                tr("HP Scan\nDEMO MODE\n\nScan {number}\n{width:g} x {height:g} mm\n{dpi} dpi\n\nThis is a simulated test page.",
+                                   number=page_number, width=settings.width, height=settings.height, dpi=settings.dpi),
                                 fill="#182e25", font=font, spacing=round(14*scale))
             image.save(target, format="PNG", dpi=(settings.dpi,) * 2)
-        return "Szimulált lap elkészült."
+        return tr("Simulated page created.")
     from . import escl
     warnings = ""
     # Ahol lehet, közvetlenül PDF-ként kérjük a lapot (lásd escl.py); egyébként scanimage.
@@ -122,10 +124,11 @@ def scan(settings: Settings, target: Path, cancel: threading.Event, page_number=
             _, warnings = run_command(args, cancel=cancel, output=stream, timeout=600)
         # Ne címkézzünk fel 300 dpi-s képet 600 dpi-ként, ha a backend kerekített.
         if re.search(r"rounded.*(?:resolution|dpi)|(?:resolution).*rounded", warnings, re.I):
-            raise RuntimeError("A scanner más felbontásra kerekített. Válassz támogatott dpi értéket.\n" + warnings)
+            raise RuntimeError(tr("The scanner rounded to a different resolution. Choose a supported dpi value.\n{warnings}", warnings=warnings))
     with Image.open(target) as image:
         expected = (round(settings.width / 25.4 * settings.dpi), round(settings.height / 25.4 * settings.dpi))
         if any(abs(actual - wanted) > max(8, wanted * 0.02) for actual, wanted in zip(image.size, expected)):
-            raise RuntimeError(f"A scanner mérete vagy felbontása eltér a kért értéktől. Kapott: {image.width} × {image.height} képpont; várt: {expected[0]} × {expected[1]}. Ellenőrizd az eszköz beállításait.")
+            raise RuntimeError(tr("The size or resolution returned by the scanner differs from the request. Received: {width} × {height} pixels; expected: {expected_width} × {expected_height}. Check the device settings.",
+                                  width=image.width, height=image.height, expected_width=expected[0], expected_height=expected[1]))
         image.verify()
     return warnings.strip()

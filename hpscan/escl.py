@@ -19,6 +19,7 @@ import urllib.request
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
+from .i18n import tr
 from .model import Settings
 
 MODES = {"Color": "RGB24", "Gray": "Grayscale8"}
@@ -116,13 +117,13 @@ def create_job(base, body, cancel, busy_timeout=30):
             with request(urljoin(base, "ScanJobs"), method="POST", data=body) as response:
                 location = response.headers.get("Location")
             if not location:
-                raise EsclError("A scanner nem adott vissza feladatazonosítót.")
+                raise EsclError(tr("The scanner did not return a job identifier."))
             # A készülék a saját IP-címével válaszol; a beállított címen maradunk
             # (az ipp-usb localhost-os átjárója miatt ez nem mindegy).
             return urljoin(base, "ScanJobs/" + urlsplit(location).path.rstrip("/").rsplit("/", 1)[-1])
         except urllib.error.HTTPError as exc:
             if exc.code != 503 or time.monotonic() > deadline:
-                raise EsclError(f"A scanner nem fogadta el a beolvasási kérést (HTTP {exc.code}).") from exc
+                raise EsclError(tr("The scanner did not accept the scan request (HTTP {code}).", code=exc.code)) from exc
         if cancel.wait(1):
             from .scanner import ScanCancelled
             raise ScanCancelled()
@@ -142,12 +143,11 @@ def fetch_document(job, stop, timeout):
                 return b"".join(chunks)
         except urllib.error.HTTPError as exc:
             if exc.code in (404, 410):
-                raise EsclError("A scanner megszakította a beolvasást, mielőtt a lap elkészült volna. "
-                                "Próbáld újra; ha ismétlődik, válassz kisebb felbontást.") from exc
+                raise EsclError(tr("The scanner aborted the scan before the page was ready. Try again; if it keeps happening, choose a lower resolution.")) from exc
             if exc.code != 503:
-                raise EsclError(f"A scanner hibát jelzett a lap letöltésekor (HTTP {exc.code}).") from exc
+                raise EsclError(tr("The scanner reported an error while the page was being downloaded (HTTP {code}).", code=exc.code)) from exc
             if time.monotonic() > deadline:
-                raise EsclError("A scanner nem készült el a lappal a megadott időn belül.") from exc
+                raise EsclError(tr("The scanner did not finish the page in time.")) from exc
         stop.wait(1)
     return None
 
@@ -164,10 +164,10 @@ def extract_image(pdf: bytes):
     try:
         images = PdfReader(io.BytesIO(pdf)).pages[0].images
         if len(images) != 1:
-            raise ValueError(f"{len(images)} kép az oldalon")
+            raise ValueError(tr("{count} images on the page", count=len(images)))
         return images[0].data
     except Exception as exc:
-        raise EsclError(f"A scanner által küldött PDF nem értelmezhető: {exc}") from exc
+        raise EsclError(tr("The PDF sent by the scanner cannot be read: {error}", error=exc)) from exc
 
 
 def scan(settings: Settings, target: Path, cancel: threading.Event, timeout=600):
@@ -189,7 +189,7 @@ def scan(settings: Settings, target: Path, cancel: threading.Event, timeout=600)
     try:
         job = create_job(base, job_xml(settings, caps), cancel)
     except OSError as exc:
-        raise EsclError(f"A scanner nem érhető el: {exc}") from exc
+        raise EsclError(tr("The scanner cannot be reached: {error}", error=exc)) from exc
     result = {}
     stop = threading.Event()
 
@@ -209,7 +209,7 @@ def scan(settings: Settings, target: Path, cancel: threading.Event, timeout=600)
             raise ScanCancelled()
         if "error" in result:
             error = result["error"]
-            raise error if isinstance(error, EsclError) else EsclError(f"A kapcsolat megszakadt a scannerrel: {error}") from error
+            raise error if isinstance(error, EsclError) else EsclError(tr("The connection to the scanner was lost: {error}", error=error)) from error
         target.write_bytes(extract_image(result["data"]))
     except BaseException:
         stop.set()

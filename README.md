@@ -2,16 +2,18 @@
 
 A desktop scanning app for turning a stack of related documents into separate
 PDFs without repeatedly starting and stopping a scanning session. Designed for
-manual page changes on an **HP LaserJet Pro MFP M130nw**, with a Hungarian UI.
+manual page changes on an **HP LaserJet Pro MFP M130nw**. The interface is
+available in English and Hungarian.
 
 For example, scan one student's test as `aa.pdf` and `aa_001.jpg`,
-`aa_002.jpg`, then press **U** to prepare the next student's `ab` group.
-You can use names such as `Pistike` and `Petike` instead of automatic prefixes.
+`aa_002.jpg`, then press **N** to prepare the next student's `ab` group.
+You can use names such as `Alice` and `Bob` instead of automatic prefixes.
 
 **Status:** the application, simulated scans, SANE test backend and portable
 packaging are tested on Fedora 44 x86_64. The AppImage's output smoke test and
-headless GUI startup also run in a Fedora 45 container. Testing with a
-powered-on M130nw and on a Fedora 45 desktop is still pending.
+headless GUI startup also run in a Fedora 45 container. Scanning has been
+checked on a real M130nw on Fedora 45 at 300 and 600 dpi; the full GUI flow on
+the device is still pending.
 This is a community project, not an HP product.
 
 ## Screenshots
@@ -19,7 +21,7 @@ This is a community project, not an HP product.
 Screenshots of the running application in demo mode. Pages are explicitly
 marked synthetic; no student documents are shown.
 
-![Scan settings in the Hungarian UI](docs/screenshots/settings.png)
+![Scan settings, with the language selector in the top right corner](docs/screenshots/settings.png)
 
 ![Scanning workspace with document groups and a synthetic page preview](docs/screenshots/scanning.png)
 
@@ -36,6 +38,7 @@ marked synthetic; no student documents are shown.
 - Separate `images/` directory, or one subdirectory per group containing both
   its PDF and images.
 - Keyboard controls and an immediately focused custom-name dialog.
+- English and Hungarian interface, switchable on the settings screen.
 - PDF updates after every page, session recovery and file collision checks.
 - A scanner-free demo mode that writes real output files using synthetic pages.
 
@@ -57,42 +60,69 @@ system dependencies. The desktop's fontconfig library and configuration are
 used for fonts. No proprietary HP plug-in is bundled.
 
 ```bash
-chmod +x FedoraMultiScan-1.0.1-x86_64.AppImage
-./FedoraMultiScan-1.0.1-x86_64.AppImage
+chmod +x FedoraMultiScan-1.1.0-x86_64.AppImage
+./FedoraMultiScan-1.1.0-x86_64.AppImage
 ```
 
 If FUSE mounting is unavailable, use:
 
 ```bash
-APPIMAGE_EXTRACT_AND_RUN=1 ./FedoraMultiScan-1.0.1-x86_64.AppImage
+APPIMAGE_EXTRACT_AND_RUN=1 ./FedoraMultiScan-1.1.0-x86_64.AppImage
 ```
 
 The portable tar archive works without FUSE:
 
 ```bash
-tar -xzf FedoraMultiScan-1.0.1-x86_64.tar.gz
-./FedoraMultiScan-1.0.1.AppDir/AppRun
+tar -xzf FedoraMultiScan-1.1.0-x86_64.tar.gz
+./FedoraMultiScan-1.1.0.AppDir/AppRun
 ```
 
 Use `--demo` to try the application without a scanner. Choose a separate output
 folder because demo mode writes files just like a real scanning session.
 
+### Language
+
+The interface starts in English. Pick **Magyar** in the **Language** box at the
+top right of the settings screen to switch to Hungarian; the choice is
+remembered for the next start. The language can be changed while no session is
+open, and what you have already entered is kept. `--lang en` or `--lang hu`
+selects the language for a single run.
+
 If HPLIP reports a missing proprietary component, run `hp-plugin -i` on the
 target machine and review HP's license. See the [HP plug-in documentation](https://developers.hp.com/hp-linux-imaging-and-printing/binary_plugin.html).
+
+### 600 dpi colour on the M130nw
+
+The M130nw aborts a full-page 600 dpi colour scan after about 40 seconds when it
+is asked for JPEG, which is what SANE's airscan backend requests
+(`sane_read: Device busy`). The same page is delivered correctly as PDF. If the
+scanner is listed by name in the `[devices]` section of
+`/etc/sane.d/airscan.conf`, the app therefore fetches the page directly over
+eSCL as PDF (about 50 seconds per page at 600 dpi colour):
+
+```ini
+[devices]
+"HP LaserJet M130nw (eSCL)" = http://PRINTER-NAME.local/eSCL/, escl
+```
+
+Using the printer's `.local` name instead of its IP address keeps this working
+when the address changes. A scanner that is only auto-discovered still goes
+through SANE; there, use 300 dpi for colour or greyscale for 600 dpi.
 
 ## Workflow and shortcuts
 
 Choose the device, page size, orientation, resolution, output format and folder.
-Click **Munka előkészítése** to prepare the session. Place a page on the glass,
-then use the controls below.
+Click **Prepare session**. Place a page on the glass, then use the controls
+below. The letter keys follow the button names in each language, and both sets
+work whichever language is selected.
 
-| Action | UI label | Keys |
-| --- | --- | --- |
-| Scan one page | Tovább | **Space**, **T**, Ctrl+Enter |
-| Prepare a new group, without scanning | Új egység | **U**, Ctrl+N |
-| Finish the session | Vége | **V**, **Esc**, Ctrl+Q |
-| Accept a group name | Dialog OK | Enter |
-| Cancel name entry | Dialog Cancel | Esc |
+| Action | English label | Hungarian label | Keys |
+| --- | --- | --- | --- |
+| Scan one page | Continue | Tovább | **Space**, **C**, **T**, Ctrl+Enter |
+| Prepare a new group, without scanning | New group | Új egység | **N**, **U**, Ctrl+N |
+| Finish the session | Finish | Vége | **F**, **V**, **Esc**, Ctrl+Q |
+| Accept a group name | OK | OK | Enter |
+| Cancel name entry | Cancel | Mégse | Esc |
 
 The name dialog receives focus immediately. Letters and spaces type into the
 name field normally; scanning shortcuts are inactive while the dialog is open.
@@ -121,17 +151,17 @@ With group folders enabled:
 
 ```text
 output/
-├── Pistike/
-│   ├── Pistike.pdf
-│   ├── Pistike_001.png
-│   └── Pistike_002.png
-└── Petike/
-    ├── Petike.pdf
-    └── Petike_001.png
+├── Alice/
+│   ├── Alice.pdf
+│   ├── Alice_001.png
+│   └── Alice_002.png
+└── Bob/
+    ├── Bob.pdf
+    └── Bob_001.png
 ```
 
 A hidden `.hpscan/` directory stores session journals. Keep it to resume an
-unfinished session. Closing the window leaves a resumable session; **Vége**
+unfinished session. Closing the window leaves a resumable session; **Finish**
 marks it finished. Selecting the same folder offers to resume the latest
 unfinished session with its original settings. Existing prefixes are skipped
 for automatic naming and rejected for custom naming.
@@ -173,6 +203,13 @@ Headless output smoke test (use a fresh folder):
 See [the verification record](docs/VERIFICATION.md) for coverage and remaining
 hardware checks, or the [Hungarian user guide](docs/HASZNALAT.md).
 
+Interface texts are written in English in the code and passed through `tr()`;
+the Hungarian equivalents live in `hpscan/i18n.py`. `tests/test_i18n.py` fails
+when a string has no Hungarian entry or an entry is no longer used. Regenerate
+the README screenshots with
+`QT_QPA_PLATFORM=offscreen .venv/bin/python tools/capture-screenshots.py`
+(add `hu` and an output folder for Hungarian ones).
+
 ## Build portable packages
 
 On Fedora x86_64, install `python3`, `python3-pip`, `binutils`, `curl`, `tar`,
@@ -210,8 +247,9 @@ uploads them to the matching GitHub Release.
    documents you intend to keep.
 
 Backends expose different resolutions, color modes and sources. Unsupported
-settings produce an error. The scanner command uses SANE's
-[`scanimage`](https://www.sane-project.org/man/scanimage.1.html).
+settings produce an error. Scanning uses SANE's
+[`scanimage`](https://www.sane-project.org/man/scanimage.1.html), except for
+the direct eSCL path described above.
 
 ## License
 

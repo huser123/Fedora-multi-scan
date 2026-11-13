@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.0
+
+- The interface is available in English and Hungarian. English is the default;
+  the language is chosen on the settings screen, remembered between starts, and
+  can be set for one run with `--lang en` or `--lang hu`. Error messages, the
+  demo page and Qt's own dialog buttons follow the selected language.
+- English letter keys **C** (Continue), **N** (New group) and **F** (Finish)
+  work alongside the existing **T**, **U** and **V** in both languages.
+- The default output folder is the desktop's Documents folder with a `Scans`
+  (Hungarian: `Scannelés`) subfolder, instead of a fixed `~/Dokumentumok` path.
+- README screenshots are now taken from the English interface.
+
+Upgrading from 1.0.x: the interface starts in English; select **Magyar** in the
+**Language** box once to get the previous Hungarian interface back.
+
 ## 1.0.1
 
 - Fix full-page 600 dpi colour scans on the HP LaserJet MFP M130nw. The device

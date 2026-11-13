@@ -148,7 +148,7 @@ def test_device_without_pdf_is_not_applicable(scanner, tmp_path):
 
 @pytest.mark.parametrize("scanner", [{"document": 410}], indirect=True)
 def test_job_aborted_by_device(scanner, tmp_path):
-    with pytest.raises(escl.EsclError, match="megszakította"):
+    with pytest.raises(escl.EsclError, match="aborted the scan"):
         scan(settings(tmp_path), tmp_path / "raw", threading.Event())
     assert ("DELETE", "/eSCL/ScanJobs/7") in scanner.requests
 

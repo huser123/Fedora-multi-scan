@@ -25,29 +25,36 @@ def smoke_test(output):
         from pypdf import PdfReader
         assert len(PdfReader(session.root / "aa.pdf").pages) == 2
         assert len(PdfReader(session.root / "ab.pdf").pages) == 1
-        print(f"OK: 3 kép, aa.pdf (2 oldal), ab.pdf (1 oldal): {session.root}")
+        from .i18n import tr
+        print(tr("OK: 3 images, aa.pdf (2 pages), ab.pdf (1 page): {folder}", folder=session.root))
     finally:
         session.release()
 
 
 def main():
-    parser = argparse.ArgumentParser(description="HP Scan: dokumentumegységek scannelése")
-    parser.add_argument("--demo", action="store_true", help="Próbaüzem scanner nélkül")
-    parser.add_argument("--smoke-test", metavar="MAPPA", help="Fej nélküli mentési próba egy üres mappába")
+    from .i18n import LANGUAGES, set_language, tr
+    # The --lang option also selects the language of --help, so look for it first.
+    early = argparse.ArgumentParser(add_help=False)
+    early.add_argument("--lang", choices=LANGUAGES)
+    chosen = early.parse_known_args()[0].lang
+    if chosen:
+        set_language(chosen)
+    parser = argparse.ArgumentParser(description=tr("Fedora Multi Scan: scan document groups into separate PDFs"))
+    parser.add_argument("--demo", action="store_true", help=tr("Demo mode without a scanner"))
+    parser.add_argument("--lang", choices=LANGUAGES, help=tr("Interface language (default: the last one used, initially English)"))
+    parser.add_argument("--smoke-test", metavar=tr("FOLDER"), help=tr("Headless output test into an empty folder"))
     args = parser.parse_args()
     if args.smoke_test:
         smoke_test(args.smoke_test)
         return
-    from PySide6.QtCore import QLocale
     from PySide6.QtGui import QFont
     from PySide6.QtWidgets import QApplication
     from .ui import MainWindow
-    QLocale.setDefault(QLocale("hu_HU"))
     app = QApplication(sys.argv[:1])
     app.setStyle("Fusion")
     app.setFont(QFont("Sans Serif", 10))
     app.setApplicationName("HP Scan")
-    window = MainWindow(demo=args.demo)
+    window = MainWindow(demo=args.demo, language=args.lang)
     window.show()
     sys.exit(app.exec())
 

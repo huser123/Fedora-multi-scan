@@ -1,24 +1,29 @@
-"""Capture the running demo UI using only synthetic documents."""
+"""Capture the running demo UI using only synthetic documents.
+
+Usage: capture-screenshots.py [en|hu] [output folder]
+"""
+import sys
 from pathlib import Path
 import tempfile
 import time
 
-from PySide6.QtCore import QLocale, QSettings, QTimer
+from PySide6.QtCore import QSettings, QTimer
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication, QInputDialog, QLineEdit
 
 import hpscan.ui as ui
+from hpscan.i18n import tr
 
 
-QLocale.setDefault(QLocale("hu_HU"))
+language = sys.argv[1] if len(sys.argv) > 1 else "en"
 app = QApplication([])
 app.setStyle("Fusion")
 app.setFont(QFont("Sans Serif", 10))
-capture_dir = Path("docs/screenshots")
+capture_dir = Path(sys.argv[2] if len(sys.argv) > 2 else "docs/screenshots")
 capture_dir.mkdir(parents=True, exist_ok=True)
 temporary = tempfile.TemporaryDirectory(prefix="fedora-multi-scan-demo-")
 ui.QSettings = lambda *a: QSettings(str(Path(temporary.name) / "settings.ini"), QSettings.Format.IniFormat)
-window = ui.MainWindow(demo=True)
+window = ui.MainWindow(demo=True, language=language)
 window.output.setText(str(Path(temporary.name) / "Scans"))
 window.fixed.setChecked(True)
 window.count.setValue(5)
@@ -55,7 +60,7 @@ window.grouped.setChecked(True)
 def capture_dialog():
     dialog = window.findChild(QInputDialog)
     field = dialog.findChild(QLineEdit)
-    field.setText("Pistike")
+    field.setText(tr("Alice"))
     settle()
     dialog.grab().save(str(capture_dir / "name-dialog.png"))
     dialog.accept()

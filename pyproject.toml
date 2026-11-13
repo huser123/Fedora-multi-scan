@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hpscan-egysegek"
-version = "1.0.1"
-description = "Magyar scanneralkalmazás dolgozatok és dokumentumegységek mentéséhez"
+version = "1.1.0"
+description = "Scanning app that saves tests and other document groups as separate PDFs (English and Hungarian UI)"
 requires-python = ">=3.11"
 license = "MIT"
 dependencies = ["PySide6-Essentials>=6.8,<7", "Pillow>=11,<13", "img2pdf>=0.6,<0.7", "pypdf>=6,<7"]

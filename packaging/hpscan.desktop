@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Fedora Multi Scan
+Comment=Scan pages into document groups with matching images and PDFs
+Exec=hpscan
+Icon=scanner
+Categories=Graphics;Scanning;
+Terminal=false
+StartupNotify=true

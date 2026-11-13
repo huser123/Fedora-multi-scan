@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hpscan-egysegek"
+version = "1.0.0"
+description = "Magyar scanneralkalmazás dolgozatok és dokumentumegységek mentéséhez"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["PySide6-Essentials>=6.8,<7", "Pillow>=11,<13", "img2pdf>=0.6,<0.7", "pypdf>=6,<7"]
+
+[project.scripts]
+hpscan = "hpscan.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["hpscan*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+qt_api = "pyside6"

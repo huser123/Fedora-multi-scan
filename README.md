@@ -57,21 +57,21 @@ system dependencies. The desktop's fontconfig library and configuration are
 used for fonts. No proprietary HP plug-in is bundled.
 
 ```bash
-chmod +x FedoraMultiScan-1.0.0-x86_64.AppImage
-./FedoraMultiScan-1.0.0-x86_64.AppImage
+chmod +x FedoraMultiScan-1.0.1-x86_64.AppImage
+./FedoraMultiScan-1.0.1-x86_64.AppImage
 ```
 
 If FUSE mounting is unavailable, use:
 
 ```bash
-APPIMAGE_EXTRACT_AND_RUN=1 ./FedoraMultiScan-1.0.0-x86_64.AppImage
+APPIMAGE_EXTRACT_AND_RUN=1 ./FedoraMultiScan-1.0.1-x86_64.AppImage
 ```
 
 The portable tar archive works without FUSE:
 
 ```bash
-tar -xzf FedoraMultiScan-1.0.0-x86_64.tar.gz
-./FedoraMultiScan-1.0.0.AppDir/AppRun
+tar -xzf FedoraMultiScan-1.0.1-x86_64.tar.gz
+./FedoraMultiScan-1.0.1.AppDir/AppRun
 ```
 
 Use `--demo` to try the application without a scanner. Choose a separate output

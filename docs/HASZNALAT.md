@@ -13,21 +13,21 @@ sudo dnf install sane-backends sane-airscan hplip hplip-libs
 Indítás a letöltött fájl könyvtárában:
 
 ```bash
-chmod +x FedoraMultiScan-1.0.0-x86_64.AppImage
-./FedoraMultiScan-1.0.0-x86_64.AppImage
+chmod +x FedoraMultiScan-1.0.1-x86_64.AppImage
+./FedoraMultiScan-1.0.1-x86_64.AppImage
 ```
 
 Ha a FUSE miatti csatolás nem működik:
 
 ```bash
-APPIMAGE_EXTRACT_AND_RUN=1 ./FedoraMultiScan-1.0.0-x86_64.AppImage
+APPIMAGE_EXTRACT_AND_RUN=1 ./FedoraMultiScan-1.0.1-x86_64.AppImage
 ```
 
 Másik lehetőség a tar.gz csomag. Ez nem igényel FUSE-t:
 
 ```bash
-tar -xzf FedoraMultiScan-1.0.0-x86_64.tar.gz
-./FedoraMultiScan-1.0.0.AppDir/AppRun
+tar -xzf FedoraMultiScan-1.0.1-x86_64.tar.gz
+./FedoraMultiScan-1.0.1.AppDir/AppRun
 ```
 
 Próbaüzem: pipáld be a „Próbaüzem, scanner nélkül” lehetőséget, vagy indítsd

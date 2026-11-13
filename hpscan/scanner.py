@@ -107,18 +107,22 @@ def scan(settings: Settings, target: Path, cancel: threading.Event, page_number=
                                 fill="#182e25", font=font, spacing=round(14*scale))
             image.save(target, format="PNG", dpi=(settings.dpi,) * 2)
         return "Szimulált lap elkészült."
-    args = [scanimage_path(), "--device-name", settings.device, "--format=pnm"]
-    if settings.source:
-        args += ["--source", settings.source]
-    if settings.mode:
-        args += ["--mode", settings.mode]
-    args += ["--resolution", str(settings.dpi), "-l", "0", "-t", "0",
-             "-x", f"{settings.width:g}", "-y", f"{settings.height:g}"]
-    with target.open("wb") as stream:
-        _, warnings = run_command(args, cancel=cancel, output=stream, timeout=600)
-    # Ne címkézzünk fel 300 dpi-s képet 600 dpi-ként, ha a backend kerekített.
-    if re.search(r"rounded.*(?:resolution|dpi)|(?:resolution).*rounded", warnings, re.I):
-        raise RuntimeError("A scanner más felbontásra kerekített. Válassz támogatott dpi értéket.\n" + warnings)
+    from . import escl
+    warnings = ""
+    # Ahol lehet, közvetlenül PDF-ként kérjük a lapot (lásd escl.py); egyébként scanimage.
+    if not escl.scan(settings, target, cancel):
+        args = [scanimage_path(), "--device-name", settings.device, "--format=pnm"]
+        if settings.source:
+            args += ["--source", settings.source]
+        if settings.mode:
+            args += ["--mode", settings.mode]
+        args += ["--resolution", str(settings.dpi), "-l", "0", "-t", "0",
+                 "-x", f"{settings.width:g}", "-y", f"{settings.height:g}"]
+        with target.open("wb") as stream:
+            _, warnings = run_command(args, cancel=cancel, output=stream, timeout=600)
+        # Ne címkézzünk fel 300 dpi-s képet 600 dpi-ként, ha a backend kerekített.
+        if re.search(r"rounded.*(?:resolution|dpi)|(?:resolution).*rounded", warnings, re.I):
+            raise RuntimeError("A scanner más felbontásra kerekített. Válassz támogatott dpi értéket.\n" + warnings)
     with Image.open(target) as image:
         expected = (round(settings.width / 25.4 * settings.dpi), round(settings.height / 25.4 * settings.dpi))
         if any(abs(actual - wanted) > max(8, wanted * 0.02) for actual, wanted in zip(image.size, expected)):

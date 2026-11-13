@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Fix full-page 600 dpi colour scans on the HP LaserJet MFP M130nw. The device
+  aborts such a job after about 40 seconds when asked for JPEG, which is the
+  only format sane-airscan requests (`sane_read: Device busy`). Devices listed
+  in the `[devices]` section of `airscan.conf` that offer PDF are now scanned
+  directly over eSCL as PDF, and the embedded image is saved. Other devices
+  and settings still go through `scanimage`.
+- Verified on a real M130nw on Fedora 45: A4 colour at 600 dpi over the
+  network (51 s) and A4 grey at 300 dpi over USB through ipp-usb.
+
 ## 1.0.0
 
 Initial release:

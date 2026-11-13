@@ -146,6 +146,20 @@ A HP licencét a használati gépen kell elfogadni. Hálózaton szükség eseté
 kézzel is beírható az alkalmazásba. eSCL/WSD eszközt is lehet választani,
 ha a SANE felismeri; a konkrét készülék támogatása hardverpróbát igényel.
 
+Az M130nw a teljes A4-es, 600 dpi-s színes lapot a SANE-en át (JPEG-ként)
+nem tudja leadni: kb. 40 másodperc után „Device busy” hibával megszakítja.
+Ezért ha az eszköz név szerint szerepel az `/etc/sane.d/airscan.conf`
+`[devices]` szakaszában, a program közvetlenül, PDF-ként kéri le a lapot,
+így a 600 dpi színes is működik (kb. 50 másodperc laponként). Példa:
+
+```ini
+[devices]
+"HP LaserJet M130nw (eSCL)" = http://Nyomda.local/eSCL/, escl
+```
+
+Automatikusan felderített (a fájlban nem szereplő) eszköznél marad a SANE;
+ott színesben 300 dpi-t, 600 dpi-hez szürkeárnyalatot válassz.
+
 Először egy A4-es tesztlappal próbálj 300 és 600 dpi-t, álló és fekvő
 tájolást, majd két külön egységet. Ellenőrizd a teljes lapot, az oldalsorrendet,
 a kép/PDF méretét és a nevek helyességét. A backend nem minden felbontást
@@ -154,6 +168,6 @@ vagy méretet adott vissza a kért helyett.
 
 Fejlesztés és helyi ellenőrzés: Fedora 44 x86_64. Fedora 45 konténerben
 az AppImage mentési próbája és a grafikus felület kijelző nélküli indítása
-is lefutott. A valódi HP M130nw és a tényleges Fedora 45 asztali gép
-ellenőrzése még hátravan. A betűkészletekhez a rendszer fontconfig
+is lefutott. Valódi HP M130nw-vel Fedora 45-ön a beolvasás 300 és 600 dpi-n
+ellenőrizve; a teljes felületi munkamenet próbája még hátravan. A betűkészletekhez a rendszer fontconfig
 könyvtárát és beállításait használja az alkalmazás.

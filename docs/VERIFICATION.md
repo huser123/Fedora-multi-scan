@@ -1,8 +1,28 @@
 # Verification record
 
 Environment: Fedora 44 KDE, x86_64, Python 3.14.10. The physical HP LaserJet
-Pro MFP M130nw was unavailable throughout development. No real-device success
-is claimed.
+Pro MFP M130nw was unavailable during the 1.0.0 development; the real-device
+results are listed separately below.
+
+## Real device (after 1.0.0)
+
+HP LaserJet MFP M130nw, firmware dated 2020-10-23, Fedora 45, sane-airscan
+0.99.38, scanner configured by name in `/etc/sane.d/airscan.conf`.
+
+- Through `scanimage`/sane-airscan (JPEG): A4 colour at 75 dpi works. A4 colour
+  at 600 dpi fails with `sane_read: Device busy`; the device reports the job as
+  `Aborted` / `JobCanceledAtDevice` after about 39 seconds.
+- Straight eSCL requests with the same region: JPEG colour 300 dpi (15 s),
+  JPEG grey 600 dpi (26 s) and JPEG colour 600 dpi half page (36 s) work;
+  JPEG colour 600 dpi full page is aborted by the device; PDF colour 600 dpi
+  full page works (51 s, 4960 × 7016 pixels). A 74-second job (grey 1200 dpi
+  strip) also completes, so this is not a time limit.
+- Through the app's direct eSCL path (`hpscan/escl.py`): A4 colour 600 dpi over
+  the network, 4960 × 7016 pixels in 51 s; A4 grey 300 dpi over USB (ipp-usb),
+  2480 × 3508 pixels.
+
+Not yet checked on the device: the full GUI flow, landscape rotation, cancel
+during a real scan, and the packaged AppImage with this change.
 
 ## Automated checks
 
@@ -108,7 +128,7 @@ pages in the next group at 600 dpi. Reproduce with
 
 ## Remaining checks
 
-- Real USB and network scanning with the intended M130nw.
+- The full GUI flow and the packaged AppImage with the real M130nw.
 - Device-specific mode/source names, available resolutions and full-page crop.
 - Real flatbed placement and 90° landscape rotation with printed text.
 - Fedora 45 on the user's actual desktop and scanner connection.

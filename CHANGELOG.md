@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.1
 
 - Fix full-page 600 dpi colour scans on the HP LaserJet MFP M130nw. The device
   aborts such a job after about 40 seconds when asked for JPEG, which is the

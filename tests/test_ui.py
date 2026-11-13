@@ -108,7 +108,7 @@ def test_fixed_custom_boundary_waits_after_name(qtbot, window, monkeypatch):
 
 
 def test_controls_and_screenshots(qtbot, window, tmp_path, monkeypatch):
-    window.paper.setCurrentText("Egyedi")
+    window.paper.setCurrentText("Custom")
     assert window.width.isEnabled() and window.height.isEnabled()
     window.width.setValue(105)
     window.height.setValue(148)
@@ -164,7 +164,7 @@ def test_cancel_button_and_input_error(qtbot, window, monkeypatch):
     assert not window.next.isEnabled()
     qtbot.mouseClick(window.cancel_scan, Qt.MouseButton.LeftButton)
     wait_saved(qtbot, window, 0)
-    assert "megszakítva" in window.status.text()
+    assert "cancelled" in window.status.text()
 
 
 def test_search_and_device_options(qtbot, window, monkeypatch):

@@ -16,6 +16,8 @@ from pathlib import Path
 import img2pdf
 from PIL import Image
 
+from .i18n import tr
+
 
 PAPERS = {"A4": (210.0, 297.0), "A5": (148.0, 210.0), "A6": (105.0, 148.0),
           "B5 (ISO)": (176.0, 250.0), "B5 (JIS)": (182.0, 257.0),
@@ -41,22 +43,22 @@ class Settings:
 
     def validate(self):
         if not (10 <= self.width <= MAX_WIDTH and 10 <= self.height <= MAX_HEIGHT):
-            raise ValueError("A beolvasási terület 10–215,9 mm széles és 10–297 mm magas lehet.")
+            raise ValueError(tr("The scan area must be 10–215.9 mm wide and 10–297 mm high."))
         if self.width > self.height:
-            raise ValueError("A rövidebb oldalt add meg szélességként; a fekvő tájolást külön válaszd ki.")
+            raise ValueError(tr("Enter the shorter side as the width; choose landscape orientation separately."))
         if self.dpi not in (75, 100, 150, 200, 300, 400, 600, 1200):
-            raise ValueError("Nem támogatott felbontás.")
+            raise ValueError(tr("Unsupported resolution."))
         if self.image_format not in ("jpg", "png"):
-            raise ValueError("A képformátum JPG vagy PNG lehet.")
+            raise ValueError(tr("The image format must be JPG or PNG."))
         if not 0 <= self.pages_per_unit <= 9999:
-            raise ValueError("Az egységméret 1 és 9999 közötti oldalszám lehet.")
+            raise ValueError(tr("The group size must be between 1 and 9999 pages."))
         if not self.demo and not self.device.strip():
-            raise ValueError("Válassz scannert, vagy kapcsold be a próbaüzemet.")
+            raise ValueError(tr("Choose a scanner, or switch on demo mode."))
 
 
 def auto_prefix(index: int) -> str:
     if index < 0:
-        raise ValueError("Negatív index.")
+        raise ValueError(tr("Negative index."))
     n, result = index + 27, ""
     while n:
         n, r = divmod(n - 1, 26)
@@ -71,7 +73,7 @@ def validate_prefix(value: str) -> str:
             or any(c in '<>:"/\\|?*' or unicodedata.category(c).startswith("C") for c in value)
             or value.casefold() in {"images", ".hpscan"}
             or re.fullmatch(r"(?i)(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?", value)):
-        raise ValueError("Adj meg érvényes, legfeljebb 100 bájtos előtagot. Ékezet és szóköz használható; / \\ : * ? és kezdő pont nem.")
+        raise ValueError(tr("Enter a valid prefix of at most 100 bytes. Accented letters and spaces are allowed; / \\ : * ? and a leading dot are not."))
     return value
 
 
@@ -117,22 +119,22 @@ class Session:
         self.root.mkdir(parents=True, exist_ok=True)
         self.meta = self.root / ".hpscan"
         if self.meta.is_symlink():
-            raise ValueError("A .hpscan mappa nem lehet szimbolikus hivatkozás.")
+            raise ValueError(tr("The .hpscan folder must not be a symbolic link."))
         self.meta.mkdir(exist_ok=True)
         self.lock = (self.meta / "active.lock").open("a+")
         try:
             fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError:
             self.lock.close()
-            raise ValueError("Ebben a mappában már folyik scannelés egy másik ablakban.") from None
+            raise ValueError(tr("A scanning session is already running in this folder in another window.")) from None
         try:
             if resume:
                 if resume.resolve().parent != self.meta:
-                    raise ValueError("Érvénytelen munkanapló.")
+                    raise ValueError(tr("Invalid session journal."))
                 self.path = resume
                 self.data = json.loads(resume.read_text())
                 if self.data["finished"]:
-                    raise ValueError("Ezt a munkát már lezártad.")
+                    raise ValueError(tr("This session has already been finished."))
                 self.settings = Settings(**self.data["settings"])
                 self.settings.output = str(self.root)
                 self.settings.validate()
@@ -208,7 +210,7 @@ class Session:
 
     def start_unit(self, prefix: str | None = None):
         if self.data["finished"]:
-            raise ValueError("A munka már befejeződött.")
+            raise ValueError(tr("The session is already finished."))
         if self.current and not self.current["pages"]:
             return self.current["prefix"]
         if self.settings.automatic:
@@ -221,13 +223,13 @@ class Session:
         else:
             prefix = validate_prefix(prefix or "")
             if self.prefix_used(prefix):
-                raise ValueError(f"A(z) {prefix} előtag már foglalt. Adj másik nevet; meglévő fájlt nem írunk felül.")
+                raise ValueError(tr("The prefix {prefix} is already taken. Enter a different name; existing files are never overwritten.", prefix=prefix))
         if self.current:
             self.repair_pdf()
         folder, images = self._paths(prefix)
         for directory in (folder, images):
             if directory.is_symlink():
-                raise ValueError("A mentési almappa nem lehet szimbolikus hivatkozás.")
+                raise ValueError(tr("The output subfolder must not be a symbolic link."))
             directory.mkdir(exist_ok=True)
         if self.current:
             self.current["closed"] = True
@@ -245,7 +247,7 @@ class Session:
 
     def add_page(self, source: Path):
         if self.data["finished"] or self.needs_unit:
-            raise ValueError("Előbb indíts új egységet.")
+            raise ValueError(tr("Start a new group first."))
         unit = self.current
         self.repair_pdf()
         number = len(unit["pages"]) + 1
@@ -289,7 +291,7 @@ class Session:
                 unit["pdf_pages"] = len(unit["pages"])
                 self.save()
                 return
-            raise ValueError(f"Váratlan meglévő PDF; nem írjuk felül: {target}")
+            raise ValueError(tr("Unexpected existing PDF; it will not be overwritten: {path}", path=target))
         _, images = self._paths(unit["prefix"])
         paths = [str(images / name) for name in unit["pages"]]
         layout = img2pdf.get_fixed_dpi_layout_fun((self.settings.dpi, self.settings.dpi))

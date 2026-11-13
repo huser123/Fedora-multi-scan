@@ -1,11 +1,11 @@
 # HP Scan: dokumentumegységek
 
-Magyar nyelvű Fedora asztali munkaeszköz tanári dolgozatok folyamatos,
+Angol és magyar nyelvű (alapból angol) Fedora asztali munkaeszköz tanári dolgozatok folyamatos,
 kézi lapcserés beolvasásához. A felületi irány a feladatból következik:
 beállítások munka előtt, beolvasás közben az aktuális egység és a következő
 lap az elsődleges. ENERGY 1 / RHYTHM 1 / MOTION 1.
 
-A beolvasás mindig kifejezett művelet: Tovább, T, Space vagy Ctrl+Enter.
+A beolvasás mindig kifejezett művelet: Tovább (Continue), T, C, Space vagy Ctrl+Enter.
 Az előkészítés, új egység és a név Enterrel elfogadása után nincs beolvasás.
 
 A két nézet a felhasználó által kért sorrendet követi. A lapelőnézet a fehér

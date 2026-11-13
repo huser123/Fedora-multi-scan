@@ -72,7 +72,7 @@ def test_custom_names_manual_units(settings, source):
         session.add_page(source)
         assert (session.root / "Pistike/Pistike.pdf").is_file()
         assert (session.root / "Petike/Petike_001.jpg").is_file()
-        with pytest.raises(ValueError, match="foglalt"):
+        with pytest.raises(ValueError, match="already taken"):
             session.start_unit("pistike")
         assert session.current["prefix"] == "Petike"
         session.finish()
@@ -114,7 +114,7 @@ def test_existing_files_are_never_overwritten(settings, source):
 def test_session_lock(settings):
     session = Session(settings)
     try:
-        with pytest.raises(ValueError, match="másik ablak"):
+        with pytest.raises(ValueError, match="another window"):
             Session(settings)
     finally:
         session.release()
@@ -256,7 +256,7 @@ def test_custom_empty_prefix_reservation(settings):
     old.release()
     newer = Session(custom)
     try:
-        with pytest.raises(ValueError, match="foglalt"):
+        with pytest.raises(ValueError, match="already taken"):
             newer.start_unit("pistike")
         newer.start_unit("Petike")
     finally:

@@ -13,22 +13,29 @@ sudo dnf install sane-backends sane-airscan hplip hplip-libs
 Indítás a letöltött fájl könyvtárában:
 
 ```bash
-chmod +x FedoraMultiScan-1.0.1-x86_64.AppImage
-./FedoraMultiScan-1.0.1-x86_64.AppImage
+chmod +x FedoraMultiScan-1.1.0-x86_64.AppImage
+./FedoraMultiScan-1.1.0-x86_64.AppImage
 ```
 
 Ha a FUSE miatti csatolás nem működik:
 
 ```bash
-APPIMAGE_EXTRACT_AND_RUN=1 ./FedoraMultiScan-1.0.1-x86_64.AppImage
+APPIMAGE_EXTRACT_AND_RUN=1 ./FedoraMultiScan-1.1.0-x86_64.AppImage
 ```
 
 Másik lehetőség a tar.gz csomag. Ez nem igényel FUSE-t:
 
 ```bash
-tar -xzf FedoraMultiScan-1.0.1-x86_64.tar.gz
-./FedoraMultiScan-1.0.1.AppDir/AppRun
+tar -xzf FedoraMultiScan-1.1.0-x86_64.tar.gz
+./FedoraMultiScan-1.1.0.AppDir/AppRun
 ```
+
+A felület angolul indul. A beállítási képernyő jobb felső sarkában a
+„Language” mezőben válaszd a „Magyar” lehetőséget; a program megjegyzi.
+Nyelvet váltani csak akkor lehet, amikor nincs megnyitott munka; a már
+megadott beállítások megmaradnak. Egyetlen indításra a `--lang hu` vagy
+`--lang en` kapcsoló is megadja a nyelvet. Ez a leírás a magyar felület
+feliratait használja.
 
 Próbaüzem: pipáld be a „Próbaüzem, scanner nélkül” lehetőséget, vagy indítsd
 `--demo` kapcsolóval. A próbaüzem is valódi képeket és PDF-eket készít,
@@ -52,13 +59,16 @@ egyértelműen jelölt szimulált lapokból. Külön tesztmappát válassz hozz�
 
 | Művelet | Billentyű |
 | --- | --- |
-| Egy lap beolvasása | `Space`, `T`, `Ctrl+Enter` |
-| Új egység előkészítése, beolvasás nélkül | `U`, `Ctrl+N` |
-| Munka lezárása | `V`, `Esc`, `Ctrl+Q` |
+| Egy lap beolvasása | `Space`, `T`, `C`, `Ctrl+Enter` |
+| Új egység előkészítése, beolvasás nélkül | `U`, `N`, `Ctrl+N` |
+| Munka lezárása | `V`, `F`, `Esc`, `Ctrl+Q` |
 | Név elfogadása a bekérő ablakban | `Enter` |
 | Névbekérés megszakítása | `Esc` |
 
-A névmező azonnal aktív. A névben szóköz, illetve t/u/v betű is használható:
+A `C`, `N` és `F` az angol feliratok (Continue, New group, Finish) betűi;
+mindkét nyelven működnek.
+
+A névmező azonnal aktív. A névben szóköz és bármelyik betű használható:
 a munka gyorsbillentyűi a névbekérő ablakban nem működnek.
 **A név Enterrel elfogadása soha nem indít beolvasást.** Helyezd el a lapot,
 majd külön nyomj `Space`-t. Ez az automatikus oldalszámhatár után is így van.
